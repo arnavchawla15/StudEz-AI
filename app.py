@@ -8,7 +8,7 @@ import datetime as dt
 FIXED_API_KEY = "AIzaSyDgrViseixaJlHTEDgysF6zcifGjw6MKNk"
 
 st.set_page_config(
-    page_title="BennettBot",
+    page_title="StudEZ AI",
     page_icon="🎓",
     layout="centered"
 )
@@ -35,7 +35,7 @@ Bennett University quick facts:
 """
 
 SYSTEM_PROMPT_ADDITION = (
-    "You are BennettBot, an assistant for Bennett University students. "
+    "You are StudEZ AI, an assistant for Bennett University students. "
     "Answer ONLY Bennett-related queries (hostel, mess, academics, contacts, campus info). "
     "Be concise, factual, and polite. If a question is not about Bennett, reply: "
     "'I can answer Bennett-related queries only.'"
@@ -53,7 +53,7 @@ with st.sidebar:
         api_key = st.text_input("Enter Google API Key", type="password", help="Get your key from Google AI Studio")
         
     st.markdown("---")
-    st.markdown("**About**\n\nBennett University Chatbot made by Team Famous Five.")
+    st.markdown("**About**\n\nStudEZ AI made by Team Famous Five.")
     if st.button("Clear Chat History"):
         st.session_state.messages = []
         st.rerun()
@@ -81,7 +81,7 @@ def ask_ai(user_text, key):
         return f"⚠️ Error: {str(e)}"
 
 # --- Main Chat Interface ---
-st.title("🎓 BennettBot")
+st.title("🎓 StudEZ AI")
 st.caption("Ask me about mess timings, hostel rules, or contacts.")
 
 # Initialize chat history
