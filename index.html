@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>BennettBot — Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f4f7fb; --card:#ffffff; --muted:#64748b; --accent1:#6366f1; --accent2:#06b6d4;
+      --user:#0ea5ff; --bot:#eef2ff;
+    }
+    [data-theme="dark"]{
+      --bg:#0b1220; --card:#081027; --muted:#94a3b8; --accent1:#7c3aed; --accent2:#06b6d4;
+      --user:#0ea5ff; --bot:#0b1220;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:Inter,system-ui,Arial; background:linear-gradient(180deg,var(--bg),#e9f0ff 60%); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;}
+    .app{width:100%; max-width:900px; background:var(--card); border-radius:16px; box-shadow:0 12px 40px rgba(2,6,23,0.12); overflow:hidden; display:flex; flex-direction:column; min-height:640px;}
+    .header{padding:18px 22px; display:flex; align-items:center; gap:14px; background:linear-gradient(90deg,var(--accent1),var(--accent2)); color:white}
+    .brand{display:flex; gap:12px; align-items:center;}
+    .logo{width:46px;height:46px;border-radius:10px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;font-weight:700}
+    .title{font-size:18px;font-weight:700}
+    .subtitle{font-size:12px;opacity:.95}
+    .controls{margin-left:auto; display:flex; gap:8px; align-items:center}
+    .btn{background:rgba(255,255,255,0.12); color:white; padding:8px 10px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
+    .main{display:flex; gap:0; flex:1; min-height:420px}
+    .left{width:320px;border-right:1px solid rgba(15,23,42,0.04); background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); padding:16px}
+    .chat-list{display:flex;flex-direction:column;gap:10px; max-height:520px; overflow:auto}
+    .chat-card{background:rgba(0,0,0,0.02); padding:10px;border-radius:10px;cursor:pointer}
+    .chat-card.active{outline:3px solid rgba(99,102,241,0.12); background:rgba(99,102,241,0.06)}
+    .right{flex:1; display:flex; flex-direction:column}
+    .messages{flex:1; padding:20px; overflow:auto; background:linear-gradient(180deg, transparent, rgba(2,6,23,0.02));}
+    .msg-row{display:flex; gap:12px; margin-bottom:12px}
+    .msg-row.you{justify-content:flex-end}
+    .avatar{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;color:white}
+    .avatar.bot{background:linear-gradient(135deg,var(--accent1),var(--accent2))}
+    .avatar.you{background:var(--user)}
+    .bubble{max-width:74%; padding:12px 14px;border-radius:12px; font-size:14px; line-height:1.35; box-shadow:0 6px 18px rgba(2,6,23,0.06)}
+    .bubble.bot{background:linear-gradient(180deg, rgba(236,239,255,1), rgba(240,249,255,1)); color: #041025; border-bottom-left-radius:6px;}
+    .bubble.you{background:linear-gradient(180deg,var(--user), #0284c7); color:white; border-bottom-right-radius:6px;}
+    .meta{font-size:11px;color:var(--muted); margin-top:6px}
+    .input-area{padding:14px;border-top:1px solid rgba(2,6,23,0.04); display:flex; gap:10px; align-items:center}
+    .input{flex:1; display:flex; gap:10px; align-items:center; background:rgba(0,0,0,0.02); padding:8px;border-radius:12px}
+    input[type="text"]{flex:1;border:0;background:transparent;outline:none;padding:10px;font-size:15px}
+    .send{background:linear-gradient(90deg,var(--accent1),var(--accent2)); color:white;border:none;padding:10px 14px;border-radius:10px; cursor:pointer; font-weight:700}
+    .small{font-size:12px;color:var(--muted)}
+    .typing{display:inline-flex; gap:4px; align-items:center}
+    .dot{width:7px;height:7px;border-radius:50%; background:var(--muted); opacity:.2; animation:blink 1s infinite}
+    .dot.d1{animation-delay:0s} .dot.d2{animation-delay:.15s} .dot.d3{animation-delay:.3s}
+    @keyframes blink{0%{opacity:.2; transform:translateY(0)}50%{opacity:1; transform:translateY(-4px)}100%{opacity:.2; transform:translateY(0)}}
+    .toolbar{display:flex; gap:8px; align-items:center}
+    .ghost{background:transparent;border:1px dashed rgba(2,6,23,0.05); padding:6px 8px;border-radius:8px; cursor:pointer}
+    .footer-note{padding:10px;text-align:center;font-size:12px;color:var(--muted)}
+    /* responsive */
+    @media (max-width:880px){
+      .left{display:none}
+      .app{max-width:720px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app" data-theme="light" role="application" aria-label="Chat UI">
+    <div class="header">
+      <div class="brand">
+        <div class="logo">SE</div>
+        <div>
+          <div class="title">StudEZ AI</div>
+          <div class="subtitle">Friendly campus assistant — ask anything</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="clearBtn" title="Clear chat">Clear</button>
+        <button class="btn" id="themeBtn" title="Toggle dark">Dark</button>
+      </div>
+    </div>
+
+    <div class="main">
+      <aside class="left">
+        <div style="font-weight:700;margin-bottom:8px">Conversations</div>
+        <div class="chat-list" id="sessions"></div>
+        <div style="margin-top:12px">
+          <button class="ghost" id="newSession">+ New conversation</button>
+        </div>
+      </aside>
+
+      <section class="right">
+        <div id="messages" class="messages" aria-live="polite"></div>
+
+        <div class="input-area">
+          <div class="input" role="textbox" aria-label="Message input">
+            <input id="input" type="text" placeholder="Ask BennettBot anything — e.g. 'mess timings'">
+            <div class="small" id="status">Ready</div>
+          </div>
+          <button class="send" id="sendBtn">Send</button>
+        </div>
+
+        <div class="footer-note">Do not paste secret API keys in the frontend. Backend should keep keys private.</div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    const BACKEND = "http://localhost:5000/chat"; // keep backend running
+    const storageKey = "bennettbot_sessions_v1";
+
+    // DOM
+    const messagesEl = document.getElementById("messages");
+    const inputEl = document.getElementById("input");
+    const sendBtn = document.getElementById("sendBtn");
+    const statusEl = document.getElementById("status");
+    const clearBtn = document.getElementById("clearBtn");
+    const themeBtn = document.getElementById("themeBtn");
+    const sessionsEl = document.getElementById("sessions");
+    const newSessionBtn = document.getElementById("newSession");
+    const appEl = document.getElementById("app");
+
+    // State
+    let sessions = loadSessions();
+    let active = sessions[0] || createSession();
+    renderSessionList();
+    renderMessages();
+
+    // Helpers
+    function nowTS(){
+      const d = new Date();
+      return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    }
+
+    function createSession(name="New chat"){
+      const s = { id: Date.now().toString(), name, messages: [
+        {who:"Bot", text:"Hi — I'm StudEZ AI. Ask about mess timings, hostel rules, or where to find anything.", ts: nowTS()}
+      ]};
+      sessions.unshift(s);
+      saveSessions();
+      return s;
+    }
+
+    function saveSessions(){ localStorage.setItem(storageKey, JSON.stringify(sessions)); }
+    function loadSessions(){ try{ return JSON.parse(localStorage.getItem(storageKey)) || []; }catch(e){ return []; } }
+
+    function renderSessionList(){
+      sessionsEl.innerHTML = "";
+      sessions.forEach(s => {
+        const div = document.createElement("div");
+        div.className = "chat-card" + (s.id===active.id ? " active":"");
+        div.textContent = s.name;
+        div.onclick = () => { active = s; renderSessionList(); renderMessages(); }
+        sessionsEl.appendChild(div);
+      });
+    }
+
+    function renderMessages(){
+      messagesEl.innerHTML = "";
+      active.messages.forEach(m => appendMessage(m.who, m.text, m.ts, false));
+      scrollBottom();
+    }
+
+    function appendMessage(who, text, ts = nowTS(), save = true){
+      const row = document.createElement("div");
+      row.className = "msg-row " + (who==="You" ? "you":"");
+      const avatar = document.createElement("div");
+      avatar.className = "avatar " + (who==="You" ? "you":"bot");
+      avatar.textContent = who==="You" ? "Y" : "S";
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble " + (who==="You" ? "you":"bot");
+      bubble.textContent = text;
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = ts + " • " + who;
+
+      if (who === "You") {
+        row.appendChild(bubble);
+        row.appendChild(avatar);
+      } else {
+        row.appendChild(avatar);
+        row.appendChild(bubble);
+      }
+      const wrapper = document.createElement("div");
+      wrapper.style.display = "flex";
+      wrapper.style.flexDirection = "column";
+      wrapper.appendChild(row);
+      wrapper.appendChild(meta);
+
+      messagesEl.appendChild(wrapper);
+
+      if (save) {
+        active.messages.push({who, text, ts});
+        saveSessions();
+        renderSessionList();
+      }
+      scrollBottom();
+    }
+
+    function renderTyping(){
+      const row = document.createElement("div");
+      row.className = "msg-row";
+      const avatar = document.createElement("div");
+      avatar.className = "avatar bot";
+      avatar.textContent = "B";
+      const bubble = document.createElement("div");
+      bubble.className = "bubble bot typing";
+      bubble.innerHTML = '<span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span>';
+      row.appendChild(avatar);
+      row.appendChild(bubble);
+      messagesEl.appendChild(row);
+      scrollBottom();
+      return row;
+    }
+
+    function removeNode(node){ if(node && node.parentNode) node.parentNode.removeChild(node); }
+
+    function scrollBottom(){ messagesEl.scrollTop = messagesEl.scrollHeight; }
+
+    // Send logic
+    async function sendCurrent(){
+      const text = inputEl.value.trim();
+      if(!text) return;
+      inputEl.value = "";
+      appendMessage("You", text);
+      statusEl.textContent = "Sending...";
+      const typingNode = renderTyping();
+
+      try {
+        const res = await fetch(BACKEND, {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+        removeNode(typingNode);
+        if(data.reply){
+          appendMessage("Bot", data.reply);
+          statusEl.textContent = "Done";
+        } else if (data.error){
+          appendMessage("Bot", "[Error] " + data.error);
+          statusEl.textContent = "Error";
+        } else {
+          appendMessage("Bot", "[Unexpected response]");
+          statusEl.textContent = "Error";
+        }
+      } catch (err) {
+        removeNode(typingNode);
+        appendMessage("Bot", "[Network error] Could not reach backend. Is server running?");
+        statusEl.textContent = "Offline";
+        console.error(err);
+      }
+    }
+
+    // Events
+    sendBtn.onclick = sendCurrent;
+    inputEl.addEventListener("keydown", e => { if(e.key === "Enter") sendCurrent(); });
+
+    clearBtn.onclick = () => {
+      if(!confirm("Clear this conversation?")) return;
+      active.messages = [];
+      active = createSession();
+      saveSessions();
+      renderSessionList();
+      renderMessages();
+    };
+
+    newSessionBtn.onclick = () => {
+      active = createSession();
+      renderSessionList();
+      renderMessages();
+    };
+
+    themeBtn.onclick = () => {
+      const theme = appEl.getAttribute("data-theme") === "light" ? "dark":"light";
+      appEl.setAttribute("data-theme", theme);
+      themeBtn.textContent = theme === "light" ? "Dark":"Light";
+    };
+
+    // ensure there is at least one session
+    if(sessions.length === 0){
+      active = createSession();
+      saveSessions();
+      renderSessionList();
+      renderMessages();
+    }
+
+    // Quick accessibility focus
+    inputEl.focus();
+  </script>
+</body>
+</html>
