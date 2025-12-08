@@ -3,7 +3,7 @@ import google.generativeai as genai
 import datetime as dt
 
 
-API_KEY = "AIzaSyBlY4qMieINIQyw_B2kOwf5k5aLbvz7O3M"
+API_KEY = "AIzaSyB3fbQwMv3obG9lvZsTBQ88_Ebn8cu3A_w"
 
 st.set_page_config(
     page_title="StudEZ AI",
@@ -106,6 +106,7 @@ if prompt := st.chat_input("Type your query here..."):
             st.markdown(response)
     
     st.session_state.messages.append({"role": "assistant", "content": response})
+
 
 
 
