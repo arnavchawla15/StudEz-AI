@@ -44,7 +44,7 @@ with st.sidebar:
     st.header("⚙️ Configuration")
     
     # If a fixed key is set in code, use it. Otherwise, show the input field.
-    if FIXED_API_KEY:
+    if API_KEY:
         st.success("API Key loaded from code.")
         api_key = API_KEY
     else:
@@ -119,6 +119,7 @@ if prompt := st.chat_input("Type your query here..."):
     
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": response})
+
 
 
 
