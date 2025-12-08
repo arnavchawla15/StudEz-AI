@@ -5,7 +5,7 @@ import datetime as dt
 # --- Configuration ---
 # FOR TESTING ONLY: Paste your API key here to avoid entering it in the UI every time.
 # Example: FIXED_API_KEY = "AIzaSy..."
-FIXED_API_KEY = "AIzaSyDgrViseixaJlHTEDgysF6zcifGjw6MKNk"
+FIXED_API_KEY = "AIzaSyBlY4qMieINIQyw_B2kOwf5k5aLbvz7O3M"
 
 st.set_page_config(
     page_title="StudEZ AI",
@@ -121,3 +121,4 @@ if prompt := st.chat_input("Type your query here..."):
     
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": response})
+
