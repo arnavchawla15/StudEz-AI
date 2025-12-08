@@ -43,7 +43,6 @@ SYSTEM_PROMPT_ADDITION = (
 with st.sidebar:
     st.header("⚙️ Configuration")
     
-    # If a fixed key is set in code, use it. Otherwise, show the input field.
     if API_KEY:
         st.success("API Key loaded from code.")
         api_key = API_KEY
@@ -60,12 +59,10 @@ with st.sidebar:
 def ask_ai(user_text, key):
     try:
         genai.configure(api_key=key)
-        # Using the model specified in your original code
         model = genai.GenerativeModel("models/gemini-2.5-flash-preview-09-2025")
         
         today = dt.datetime.now().strftime("%A, %d %b %Y")
         
-        # Constructing the prompt with context
         prompt = (
             f"{SYSTEM_PROMPT_ADDITION}\n\n"
             f"Date: {today}\n"
@@ -78,11 +75,9 @@ def ask_ai(user_text, key):
     except Exception as e:
         return f"⚠️ Error: {str(e)}"
 
-# --- Main Chat Interface ---
 st.title("🎓 StudEZ AI")
 st.caption("Ask me about mess timings, hostel rules, or contacts.")
 
-# Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
     # Add an initial greeting from the bot
@@ -91,34 +86,27 @@ if "messages" not in st.session_state:
         "content": "Hi! Ask me Bennett University queries like 'mess timings', 'hostel rules', 'warden contact', or 'attendance portal'."
     })
 
-# Display chat messages from history on app rerun
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Accept user input
 if prompt := st.chat_input("Type your query here..."):
-    # Check for API Key BEFORE processing
-    # This prevents the 'Please enter key' warning from entering the chat history
     if not api_key:
         st.warning("Please enter your Google API Key in the sidebar (or in the code) to proceed.")
         st.stop()
 
-    # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
     
-    # Display user message in chat message container
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Display assistant response in chat message container
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             response = ask_ai(prompt, api_key)
             st.markdown(response)
     
-    # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": response})
+
 
 
 
