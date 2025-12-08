@@ -2,10 +2,8 @@ import streamlit as st
 import google.generativeai as genai
 import datetime as dt
 
-# --- Configuration ---
-# FOR TESTING ONLY: Paste your API key here to avoid entering it in the UI every time.
-# Example: FIXED_API_KEY = "AIzaSy..."
-FIXED_API_KEY = "AIzaSyBlY4qMieINIQyw_B2kOwf5k5aLbvz7O3M"
+
+API_KEY = "AIzaSyBlY4qMieINIQyw_B2kOwf5k5aLbvz7O3"
 
 st.set_page_config(
     page_title="StudEZ AI",
@@ -13,7 +11,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- Constants & Context ---
+
 BENNETT_UNIVERSITY = """
 Bennett University quick facts:
 - Location: Greater Noida, Uttar Pradesh, India.
@@ -41,14 +39,14 @@ SYSTEM_PROMPT_ADDITION = (
     "'I can answer Bennett-related queries only.'"
 )
 
-# --- Sidebar for Settings ---
+
 with st.sidebar:
     st.header("⚙️ Configuration")
     
     # If a fixed key is set in code, use it. Otherwise, show the input field.
     if FIXED_API_KEY:
         st.success("API Key loaded from code.")
-        api_key = FIXED_API_KEY
+        api_key = API_KEY
     else:
         api_key = st.text_input("Enter Google API Key", type="password", help="Get your key from Google AI Studio")
         
@@ -121,4 +119,5 @@ if prompt := st.chat_input("Type your query here..."):
     
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": response})
+
 
