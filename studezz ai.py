@@ -4,7 +4,7 @@ from tkinter.scrolledtext import ScrolledText
 import datetime as dt
 
 
-OPENAI_API = "AIzaSyDgrViseixaJlHTEDgysF6zcifGjw6MKNk"
+OPENAI_API = "AIzaSyBlY4qMieINIQyw_B2kOwf5k5aLbvz7O3M"
 genai.configure(api_key=OPENAI_API)
 
 
